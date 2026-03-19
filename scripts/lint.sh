@@ -2,7 +2,8 @@
 set -eu
 
 echo "[lint] Keine Tabs in Markdown-Dateien"
-if grep -RIn --include='*.md' "\t" .; then
+TAB_CHAR="$(printf '\t')"
+if grep -RIn --include='*.md' "$TAB_CHAR" .; then
   echo "Tabs in Markdown gefunden"
   exit 1
 fi
