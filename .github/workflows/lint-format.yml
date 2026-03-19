@@ -1,0 +1,15 @@
+name: lint-format
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint-format:
+    name: lint-format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run lint and formatting guard
+        run: ./scripts/lint.sh

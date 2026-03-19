@@ -1,0 +1,25 @@
+name: security-dependency-scan
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  security-dependency-scan:
+    name: security-dependency-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Secret pattern check (basic)
+        run: |
+          if grep -RIn --exclude-dir=.git -E "(AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY-----)" .; then
+            echo "Moegliches Secret gefunden"
+            exit 1
+          fi
+      - name: Dependency review (PR)
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
