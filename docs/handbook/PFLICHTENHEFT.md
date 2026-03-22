@@ -1,6 +1,6 @@
 # Pflichtenheft
 
-# Projekt: Intelligentes webbasiertes eLearning-Kurseditor-System fuer Informatik
+## Projekt: Intelligentes webbasiertes eLearning-Kurseditor-System fuer Informatik
 
 Dieses Dokument ist die **verbindliche Single Source of Truth** fuer systemweite Anforderungen.
 
