@@ -15,7 +15,7 @@ Dieses Verzeichnis ist die zentrale Einstiegsebene fuer Strategie-, Architektur-
 2. [ROADMAP_CORE.md](ROADMAP_CORE.md): zeitliche Planung und Meilensteine.
 3. [SETUP_REPOSITORIES.md](SETUP_REPOSITORIES.md): Erstkonfiguration von `core` und `courses`.
 4. [REPO_GOVERNANCE.md](REPO_GOVERNANCE.md): Branch-Schutz und Merge-Regeln.
-5. [ARCHITECTURE.md](ARCHITECTURE.md) und [architektur-prinzipien.md](architektur-prinzipien.md): Architekturbewertung und Architekturprinzipien.
+5. [ARCHITECTURE.md](ARCHITECTURE.md) und [ARCHITEKTUR-PRINZIPIEN.md](ARCHITEKTUR-PRINZIPIEN.md): Architekturbewertung und Architekturprinzipien.
 6. [TEMPLATE_UPDATE_STRATEGY.md](TEMPLATE_UPDATE_STRATEGY.md) und [TEMPLATE_SYNC.md](TEMPLATE_SYNC.md): Strategie und operative Umsetzung fuer Template-Updates.
 7. [BACKUP_STRATEGY.md](BACKUP_STRATEGY.md), [WORKSPACE_LIVE_TEST_SETUP.md](WORKSPACE_LIVE_TEST_SETUP.md), [QUICKSTART_LIVE_SERVER.md](QUICKSTART_LIVE_SERVER.md): Betrieb und lokales Arbeiten.
 

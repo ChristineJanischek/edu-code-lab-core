@@ -7,7 +7,7 @@ Fuer aktuelle Handbuch-Navigation und Dokument-Ownership gelten zusaetzlich:
 
 - [README.md](README.md)
 - [PFLICHTENHEFT.md](PFLICHTENHEFT.md)
-- [architektur-prinzipien.md](architektur-prinzipien.md)
+- [ARCHITEKTUR-PRINZIPIEN.md](ARCHITEKTUR-PRINZIPIEN.md)
 
 **Datum:** 30. November 2025  
 **Repository:** `web-project-dynamic` (GitHub Classroom Template)  
