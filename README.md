@@ -36,3 +36,4 @@ Die Pflicht-Checks fuer Pull Requests sind:
 - Beitragsregeln: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Sicherheitsprozess: [SECURITY.md](SECURITY.md)
 - Integrationsvertrag: [docs/INTEGRATIONSVERTRAG.md](docs/INTEGRATIONSVERTRAG.md)
+- Pflichtenheft: [docs/handbook/PFLICHTENHEFT.md](docs/handbook/PFLICHTENHEFT.md)
