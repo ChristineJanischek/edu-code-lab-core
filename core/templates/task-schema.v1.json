@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://edu-code-lab.dev/schemas/task-schema.v1.json",
+  "title": "Task Schema v1",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "title",
+    "learningObjective",
+    "difficulty",
+    "points",
+    "durationMinutes",
+    "solution"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3
+    },
+    "learningObjective": {
+      "type": "string",
+      "minLength": 5
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard"]
+    },
+    "points": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "durationMinutes": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "solution": {
+      "type": "object",
+      "required": ["type", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["text", "code"]
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

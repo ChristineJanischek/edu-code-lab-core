@@ -154,3 +154,29 @@ Eine Einrichtung ist abgeschlossen, wenn:
 4. lokaler Setup-Flow fuer neue Mitwirkende reproduzierbar ist
 5. Integrationsvertrag zwischen core und courses dokumentiert ist
 
+---
+
+## 9 Entscheidungsregel: Wann `edu-code-lab-courses` erstellen?
+
+Das `courses`-Repository wird erstellt, sobald folgende Kriterien erfuellt sind:
+
+1. `core`-Pflicht-CI ist stabil gruen (`build`, `unit-tests`, `lint-format`, `security-dependency-scan`, `release-check`)
+2. Integrationsvertrag ist konkret versioniert
+3. mindestens ein versioniertes Aufgaben-Schema ist veroeffentlicht
+4. mindestens ein lauffaehiges Validierungswerkzeug liegt vor
+5. Governance-Baseline ist in beiden Repositories gleich definiert
+
+Pragmatische Regel:
+
+- Start `courses` bei Erreichen von M2 (Template- und Validierungs-MVP produktiv).
+- Wenn M2 knapp verfehlt wird, ist ein frueher Start nur erlaubt, wenn Punkt 1 bis 4 bereits technisch nachweisbar sind.
+
+---
+
+## 10 Heisser Draht (Assoziation) core <-> courses
+
+Eine konkrete Schritt-fuer-Schritt-Anleitung inkl. Fehlerdiagnose steht in:
+
+- `docs/handbook/WORKSPACE_LIVE_TEST_SETUP.md` (Workspace-Betrieb)
+- `docs/handbook/CORE_COURSES_ASSOCIATION_GUIDE.md` (Vertrags- und Repo-Kopplung)
+

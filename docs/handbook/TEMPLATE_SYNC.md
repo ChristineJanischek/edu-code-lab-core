@@ -172,16 +172,16 @@ git diff main template/main -- docs/react.md
 1. Erstelle ein **Announcement** in GitHub Classroom:
    ```
    📢 Template-Update verfügbar!
-   
+
    Neue Inhalte: Version 4, React-Dokumentation
-   
+
    So übernimmst du die Updates:
    1. git remote add template https://github.com/ChristineJanischek/web-project-dynamic.git
    2. git fetch template
    3. git checkout template/main -- version4/
    4. git commit -m "✨ Version 4 hinzugefügt"
    5. git push
-   
+
    ⚠️ Überschreibe nicht deine Lösungen in aufgabe/!
    ```
 
@@ -386,6 +386,6 @@ git log --oneline main..template/main
 
 ---
 
-**Erstellt:** Dezember 2025  
-**Template:** https://github.com/ChristineJanischek/web-project-dynamic  
+**Erstellt:** Dezember 2025
+**Template:** https://github.com/ChristineJanischek/web-project-dynamic
 **Lizenz:** Bildung & Unterricht

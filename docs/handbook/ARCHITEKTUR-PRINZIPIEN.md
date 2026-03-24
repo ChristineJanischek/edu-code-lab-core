@@ -1,7 +1,7 @@
 # Architektur-Prinzipien für Webprojekte
 
-**Datum:** 2. Dezember 2025  
-**Zielgruppe:** Schüler & Auszubildende  
+**Datum:** 2. Dezember 2025
+**Zielgruppe:** Schüler & Auszubildende
 **Zweck:** Verständliche Einführung in professionelle Software-Architektur
 
 ---
@@ -23,10 +23,10 @@ Gute Architektur bedeutet:
 
 ### 1. 🧩 Abstraktion
 
-**Was bedeutet das?**  
+**Was bedeutet das?**
 Verstecke komplexe Details hinter einfachen Schnittstellen. Nutzer müssen nicht wissen, _wie_ etwas funktioniert – nur _was_ es tut.
 
-**Beispiel aus dem Alltag:**  
+**Beispiel aus dem Alltag:**
 Du drückst den Lichtschalter, ohne zu wissen, wie Elektrizität funktioniert. Der Schalter ist die _Abstraktion_ für ein komplexes System.
 
 **Code-Beispiel (schlecht):**
@@ -112,10 +112,10 @@ UserDisplay.show(user);
 
 ### 2. ♻️ Wiederverwendbarkeit
 
-**Was bedeutet das?**  
+**Was bedeutet das?**
 Schreibe Code einmal und nutze ihn an vielen Stellen – statt Copy & Paste!
 
-**Beispiel aus dem Alltag:**  
+**Beispiel aus dem Alltag:**
 LEGO-Steine! Du baust nicht für jedes Modell neue Steine, sondern verwendest die gleichen Bausteine immer wieder.
 
 **Code-Beispiel (schlecht):**
@@ -214,10 +214,10 @@ document.getElementById("date2").textContent = formatDate(anotherDate);
 
 ### 3. 🔨 Zerlegung (Modularität)
 
-**Was bedeutet das?**  
+**Was bedeutet das?**
 Teile große Probleme in viele kleine, überschaubare Teile auf. Jedes Teil hat genau eine Aufgabe.
 
-**Beispiel aus dem Alltag:**  
+**Beispiel aus dem Alltag:**
 Ein Auto besteht aus Motor, Bremsen, Lenkung usw. Wenn die Bremse kaputt ist, tauschst du nur die Bremse aus – nicht das ganze Auto!
 
 **Code-Beispiel (schlecht):**
@@ -347,10 +347,10 @@ async function handleUserRegistration() {
 
 ### 4. 🚀 Erweiterbarkeit
 
-**Was bedeutet das?**  
+**Was bedeutet das?**
 Code so schreiben, dass neue Features leicht hinzugefügt werden können – ohne alles umzuschreiben.
 
-**Beispiel aus dem Alltag:**  
+**Beispiel aus dem Alltag:**
 Ein Smartphone mit App Store! Du kannst jederzeit neue Apps installieren, ohne das Betriebssystem neu zu programmieren.
 
 **Code-Beispiel (schlecht):**
@@ -476,10 +476,10 @@ const saveBtn = new Button("primary", "Speichern").onClick(() =>
 
 ### 5. 🔒 Sicherheit
 
-**Was bedeutet das?**  
+**Was bedeutet das?**
 Schütze deine Anwendung vor Angriffen und Datenverlust. Vertraue niemals Benutzereingaben!
 
-**Beispiel aus dem Alltag:**  
+**Beispiel aus dem Alltag:**
 Du lässt nicht jeden in dein Haus, nur weil er klingelt. Du prüfst erst, wer da ist!
 
 **Häufige Sicherheitsprobleme:**
@@ -593,10 +593,10 @@ $stmt->execute([$user]);
 
 ### 6. 🔧 Wartbarkeit
 
-**Was bedeutet das?**  
+**Was bedeutet das?**
 Code so schreiben, dass du (und andere) ihn auch nach Monaten noch verstehst und ändern kannst.
 
-**Beispiel aus dem Alltag:**  
+**Beispiel aus dem Alltag:**
 Ein gut beschrifteter Werkzeugkasten vs. eine Kiste mit durcheinander geworfenen Werkzeugen!
 
 #### 1. Sprechende Namen
@@ -729,10 +729,10 @@ npm run dev
 
 ### 7. 🏛️ MVC-Architektur (Model-View-Controller)
 
-**Was bedeutet das?**  
+**Was bedeutet das?**
 Trenne Daten, Darstellung und Logik – so bleibt alles übersichtlich!
 
-**Beispiel aus dem Alltag:**  
+**Beispiel aus dem Alltag:**
 Restaurant: Koch (Controller) nimmt Bestellung entgegen, bereitet Essen (Model) zu, und Kellner (View) serviert es dem Gast.
 
 #### Die drei Schichten:

@@ -1,15 +1,14 @@
 # Repository Governance (Admin-only Push auf main)
 
-Diese Anleitung stellt sicher, dass Änderungen auf `main` nur über den Admin-Account laufen.
+Diese Anleitung stellt sicher, dass Aenderungen auf `main` nur ueber den Admin-Account laufen.
 
 ## Bereits im Repository umgesetzt
 
-- `/.github/CODEOWNERS` enthält:
+- `/.github/CODEOWNERS` enthaelt:
   - `* @ChristineJanischek`
-- Branch-Protection-Skript vorhanden:
-  - `scripts/configure_branch_protection.sh`
+- Verbindliche Merge-Regeln sind in `CONTRIBUTING.md` beschrieben.
 
-## Schritt-für-Schritt (einmalig als Admin)
+## Schritt-fuer-Schritt (einmalig als Admin)
 
 ## 1) GitHub CLI vorbereiten
 
@@ -18,12 +17,9 @@ gh --version
 gh auth login
 ```
 
-## 2) Branch Protection automatisiert setzen
+## 2) Branch Protection in GitHub setzen
 
-```bash
-chmod +x scripts/configure_branch_protection.sh
-./scripts/configure_branch_protection.sh ChristineJanischek web-project-dynamic main ChristineJanischek
-```
+In `Settings -> Branches` (oder `Rules`) fuer Branch `main` konfigurieren:
 
 Damit werden u. a. gesetzt:
 
@@ -34,7 +30,7 @@ Damit werden u. a. gesetzt:
 
 ## 3) In GitHub UI verifizieren
 
-`Settings → Branches` (oder `Rules`) prüfen:
+`Settings -> Branches` (oder `Rules`) pruefen:
 
 - Branch: `main`
 - Restrict who can push: nur `ChristineJanischek`
@@ -43,4 +39,4 @@ Damit werden u. a. gesetzt:
 
 ## Wichtiger Hinweis
 
-Technisch kann niemand per Repository-Datei allein globale GitHub-Rechte „erzwingen". Verbindlich wird die Regel erst, wenn die Branch-/Ruleset-Einstellungen im GitHub-Repository aktiv sind.
+Technisch kann niemand per Repository-Datei allein globale GitHub-Rechte erzwingen. Verbindlich wird die Regel erst, wenn die Branch-/Ruleset-Einstellungen im GitHub-Repository aktiv sind.

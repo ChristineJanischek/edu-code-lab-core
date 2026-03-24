@@ -14,16 +14,18 @@ Dieses Verzeichnis ist die zentrale Einstiegsebene fuer Strategie-, Architektur-
 1. [PFLICHTENHEFT.md](PFLICHTENHEFT.md): verbindliche Anforderungen und Scope-Trennung.
 2. [ROADMAP_CORE.md](ROADMAP_CORE.md): zeitliche Planung und Meilensteine.
 3. [SETUP_REPOSITORIES.md](SETUP_REPOSITORIES.md): Erstkonfiguration von `core` und `courses`.
-4. [REPO_GOVERNANCE.md](REPO_GOVERNANCE.md): Branch-Schutz und Merge-Regeln.
-5. [ARCHITECTURE.md](ARCHITECTURE.md) und [ARCHITEKTUR-PRINZIPIEN.md](ARCHITEKTUR-PRINZIPIEN.md): Architekturbewertung und Architekturprinzipien.
-6. [TEMPLATE_UPDATE_STRATEGY.md](TEMPLATE_UPDATE_STRATEGY.md) und [TEMPLATE_SYNC.md](TEMPLATE_SYNC.md): Strategie und operative Umsetzung fuer Template-Updates.
-7. [BACKUP_STRATEGY.md](BACKUP_STRATEGY.md), [WORKSPACE_LIVE_TEST_SETUP.md](WORKSPACE_LIVE_TEST_SETUP.md), [QUICKSTART_LIVE_SERVER.md](QUICKSTART_LIVE_SERVER.md): Betrieb und lokales Arbeiten.
+4. [CORE_COURSES_ASSOCIATION_GUIDE.md](CORE_COURSES_ASSOCIATION_GUIDE.md): Go/No-Go und fehlerfreie Kopplung `core` <-> `courses`.
+5. [REPO_GOVERNANCE.md](REPO_GOVERNANCE.md): Branch-Schutz und Merge-Regeln.
+6. [ARCHITECTURE.md](ARCHITECTURE.md) und [ARCHITEKTUR-PRINZIPIEN.md](ARCHITEKTUR-PRINZIPIEN.md): Architekturbewertung und Architekturprinzipien.
+7. [TEMPLATE_UPDATE_STRATEGY.md](TEMPLATE_UPDATE_STRATEGY.md) und [TEMPLATE_SYNC.md](TEMPLATE_SYNC.md): Strategie und operative Umsetzung fuer Template-Updates.
+8. [BACKUP_STRATEGY.md](BACKUP_STRATEGY.md), [WORKSPACE_LIVE_TEST_SETUP.md](WORKSPACE_LIVE_TEST_SETUP.md), [QUICKSTART_LIVE_SERVER.md](QUICKSTART_LIVE_SERVER.md): Betrieb und lokales Arbeiten.
 
 ## Dokument-Verantwortung (Single Source of Truth)
 
 - Anforderungen und verbindlicher Scope: [PFLICHTENHEFT.md](PFLICHTENHEFT.md)
 - Phasen, Meilensteine, DoD: [ROADMAP_CORE.md](ROADMAP_CORE.md)
 - Repo-Ersteinrichtung und Integrationsvertrag: [SETUP_REPOSITORIES.md](SETUP_REPOSITORIES.md)
+- Operative Kopplung core zu courses: [CORE_COURSES_ASSOCIATION_GUIDE.md](CORE_COURSES_ASSOCIATION_GUIDE.md)
 - Governance-Regeln fuer Branches: [REPO_GOVERNANCE.md](REPO_GOVERNANCE.md)
 - Template-Update-Policy und Entscheidungslogik: [TEMPLATE_UPDATE_STRATEGY.md](TEMPLATE_UPDATE_STRATEGY.md)
 - Konkrete Update-Befehle und Troubleshooting: [TEMPLATE_SYNC.md](TEMPLATE_SYNC.md)

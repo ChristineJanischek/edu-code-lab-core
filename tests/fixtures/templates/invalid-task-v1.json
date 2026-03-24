@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "id": "arrays-002",
+  "title": "Array-Fehlerfall",
+  "learningObjective": "Schwierigkeit und Punkte validieren",
+  "difficulty": "beginner",
+  "points": 0,
+  "durationMinutes": 15,
+  "solution": {
+    "type": "text",
+    "content": "Diese Aufgabe ist absichtlich ungueltig."
+  }
+}
