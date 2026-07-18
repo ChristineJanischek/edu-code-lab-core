@@ -17,8 +17,9 @@ Dieses Verzeichnis ist die zentrale Einstiegsebene fuer Strategie-, Architektur-
 4. [CORE_COURSES_ASSOCIATION_GUIDE.md](CORE_COURSES_ASSOCIATION_GUIDE.md): Go/No-Go und fehlerfreie Kopplung `core` <-> `courses`.
 5. [REPO_GOVERNANCE.md](REPO_GOVERNANCE.md): Branch-Schutz und Merge-Regeln.
 6. [ARCHITECTURE.md](ARCHITECTURE.md) und [ARCHITEKTUR-PRINZIPIEN.md](ARCHITEKTUR-PRINZIPIEN.md): Architekturbewertung und Architekturprinzipien.
-7. [TEMPLATE_UPDATE_STRATEGY.md](TEMPLATE_UPDATE_STRATEGY.md) und [TEMPLATE_SYNC.md](TEMPLATE_SYNC.md): Strategie und operative Umsetzung fuer Template-Updates.
-8. [BACKUP_STRATEGY.md](BACKUP_STRATEGY.md), [WORKSPACE_LIVE_TEST_SETUP.md](WORKSPACE_LIVE_TEST_SETUP.md), [QUICKSTART_LIVE_SERVER.md](QUICKSTART_LIVE_SERVER.md): Betrieb und lokales Arbeiten.
+7. [PHILOSOPHIE_LERNENDES_SYSTEM.md](PHILOSOPHIE_LERNENDES_SYSTEM.md): Lernsystem-Philosophie, Lernkreislauf und KI-Leitplanken.
+8. [TEMPLATE_UPDATE_STRATEGY.md](TEMPLATE_UPDATE_STRATEGY.md) und [TEMPLATE_SYNC.md](TEMPLATE_SYNC.md): Strategie und operative Umsetzung fuer Template-Updates.
+9. [BACKUP_STRATEGY.md](BACKUP_STRATEGY.md), [WORKSPACE_LIVE_TEST_SETUP.md](WORKSPACE_LIVE_TEST_SETUP.md), [QUICKSTART_LIVE_SERVER.md](QUICKSTART_LIVE_SERVER.md): Betrieb und lokales Arbeiten.
 
 ## Dokument-Verantwortung (Single Source of Truth)
 

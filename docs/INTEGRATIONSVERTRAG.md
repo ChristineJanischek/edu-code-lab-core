@@ -14,6 +14,19 @@
 - `core/templates/task-schema.v1.json`
 - `core/tooling/validate_task_template.sh`
 
+## Optionaler LLM-Ideation-Kontrakt (v1.1)
+
+- `core/integrations/llm/idea_brief_from_chatgpt_project.sh`
+- `core/integrations/llm/README.md`
+- `docs/handbook/IDEA_SOURCE_CHATGPT_PROJECT.md`
+
+Zweck:
+- Externe Ideenquelle als lokales Artefakt dokumentieren
+- Wiederholbare LLM-Verdichtung in ein Umsetzungsbriefing
+
+Nicht-Ziel:
+- Kein direkter API- oder Browser-Zugriff auf private ChatGPT-Projektseiten ohne expliziten Export
+
 Beispielpruefung:
 
 ```bash
