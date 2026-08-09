@@ -62,6 +62,19 @@ Layout-Template:
 - Die Datei enthaelt Layout, Spaltenbreiten, Farben und Regeln fuer Sonderzeilen.
 - Ferien-/freie Wochen werden in XLS und PDF automatisch mit hellem Pastell-Orange hinterlegt.
 
+Automatik in der Spalte Anmerkung:
+
+- Ein Tageshinweis wird nur erzeugt, wenn ein Ferienblock unter der Woche startet (Dienstag bis Freitag).
+- In diesem Fall wird fuer die betroffene Woche ein Hinweis wie `nur Mo - Di` oder `nur Mo` gesetzt.
+- Die Berechnung basiert auf den Ferien-/Feiertagsdaten der Generator-Konfiguration.
+- Bei Ferienbeginn am Montag wird kein Tageshinweis erzeugt.
+
+Automatische Anmerkungen (Spalte `Anmerkung`):
+
+- Der Generator analysiert pro Kalenderwoche die Schultage (Mo-Fr) gegen Ferien, Feiertage und Schuljahresgrenzen.
+- Bei Teilwochen wird automatisch ein Hinweis gesetzt, z. B. `nur Mo - Mi.` oder `nur Di, Do.`
+- Vorhandene manuelle Hinweise bleiben erhalten und werden um den Tageshinweis ergaenzt.
+
 ## Eingabedaten (Echtlauf)
 
 Siehe Checkliste:

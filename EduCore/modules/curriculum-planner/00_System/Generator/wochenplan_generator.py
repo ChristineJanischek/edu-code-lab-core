@@ -12,7 +12,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -44,6 +44,8 @@ DEFAULT_LAYOUT_TEMPLATE = {
         "single_import_table_col_widths": [34, 70, 70, 370, 135, 130],
     },
 }
+
+WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr"]
 
 
 def load_layout_template(template_path: Optional[Path]) -> dict:
@@ -869,7 +871,8 @@ class WeeklyPlanApp:
         controller = WeeklyPlanController(self.config["assignment_templates"])
         plans: Dict[str, List[WeekRow]] = {}
         for profile in classes:
-            plans[profile.name] = controller.build_rows(profile, week_slots)
+            raw_rows = controller.build_rows(profile, week_slots)
+            plans[profile.name] = self._apply_partial_week_notes(raw_rows, school_year)
 
         output_dir = self._resolve_output_dir(self.config)
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -890,6 +893,17 @@ class WeeklyPlanApp:
     def run_from_transfer(self, transfer_file: Path, target_school_year: str) -> Tuple[Path, Path]:
         importer = TransferWorkbookImporter(transfer_file, target_school_year)
         sheets = importer.import_sheets()
+        school_year = self._build_school_year_for_target(target_school_year)
+        sheets = [
+            ImportedSheet(
+                sheet_name=item.sheet_name,
+                class_name=item.class_name,
+                weekly_hours=item.weekly_hours,
+                meta=item.meta,
+                rows=self._apply_partial_week_notes(item.rows, school_year),
+            )
+            for item in sheets
+        ]
 
         output_dir = self._resolve_output_dir(self.config)
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -917,6 +931,140 @@ class WeeklyPlanApp:
             pdf_path = generated_pdf_files[0]
 
         return xls_path, pdf_path
+
+    def _apply_partial_week_notes(self, rows: Sequence[WeekRow], school_year: SchoolYear) -> List[WeekRow]:
+        # Regel: Tageshinweis nur in Wochen, in denen Ferien Di-Fr starten.
+        pre_vacation_day_notes = self._collect_pre_vacation_notes(school_year)
+
+        updated: List[WeekRow] = []
+        for row in rows:
+            week_start = self._extract_week_start_from_span(row.date_span)
+            if week_start is None:
+                updated.append(row)
+                continue
+
+            monday = week_start - timedelta(days=week_start.weekday())
+            existing_note = (row.notes or "").strip()
+            auto_note = self._is_auto_day_note(existing_note)
+            day_note = pre_vacation_day_notes.get(monday)
+
+            if not day_note:
+                # Alte automatisch erzeugte Tageshinweise ausserhalb der Regel entfernen.
+                if auto_note:
+                    updated.append(replace(row, notes=""))
+                else:
+                    updated.append(row)
+                continue
+
+            if not existing_note or auto_note:
+                updated.append(replace(row, notes=day_note))
+            elif day_note in existing_note:
+                updated.append(row)
+            else:
+                updated.append(replace(row, notes=f"{existing_note} | {day_note}"))
+
+        return updated
+
+    def _collect_pre_vacation_notes(self, school_year: SchoolYear) -> Dict[date, str]:
+        notes_by_monday: Dict[date, str] = {}
+        for vacation_start, _ in school_year.vacation_ranges:
+            # Nur Ferienbeginn innerhalb der Unterrichtswoche (Di-Fr).
+            if vacation_start.weekday() < 1 or vacation_start.weekday() > 4:
+                continue
+
+            monday = vacation_start - timedelta(days=vacation_start.weekday())
+            teaching_days: List[int] = []
+            for day_idx in range(vacation_start.weekday()):
+                current = monday + timedelta(days=day_idx)
+                if self._is_teaching_day(current, school_year):
+                    teaching_days.append(day_idx)
+
+            if teaching_days:
+                notes_by_monday[monday] = self._format_day_note(teaching_days)
+
+        return notes_by_monday
+
+    def _extract_week_start_from_span(self, date_span: str) -> Optional[date]:
+        if not date_span:
+            return None
+        first_token = date_span.split(" - ", 1)[0].strip()
+        if not first_token:
+            return None
+        try:
+            return datetime.strptime(first_token, "%d.%m.%Y").date()
+        except ValueError:
+            return None
+
+    def _is_teaching_day(self, current: date, school_year: SchoolYear) -> bool:
+        if current < school_year.start_date or current > school_year.end_date:
+            return False
+        if current.weekday() > 4:
+            return False
+        if current in school_year.holidays:
+            return False
+
+        for vac_start, vac_end in school_year.vacation_ranges:
+            if vac_start <= current <= vac_end:
+                return False
+
+        return True
+
+    def _format_day_note(self, weekdays: Sequence[int]) -> str:
+        if not weekdays:
+            return ""
+        if len(weekdays) == 1:
+            return f"nur {WEEKDAY_LABELS[weekdays[0]]}"
+
+        contiguous = all(weekdays[i] + 1 == weekdays[i + 1] for i in range(len(weekdays) - 1))
+        if contiguous:
+            return f"nur {WEEKDAY_LABELS[weekdays[0]]} - {WEEKDAY_LABELS[weekdays[-1]]}"
+
+        listed = ", ".join(WEEKDAY_LABELS[i] for i in weekdays)
+        return f"nur {listed}"
+
+    def _is_auto_day_note(self, note: str) -> bool:
+        return bool(
+            re.fullmatch(
+                r"nur\s+[A-Za-z]{2}\.?"
+                r"(?:\s*-\s*[A-Za-z]{2}\.?|(?:,\s*[A-Za-z]{2}\.?)*)"
+                r"\.?",
+                note.strip(),
+            )
+        )
+
+    def _build_school_year_for_target(self, target_school_year: str) -> SchoolYear:
+        base_school_year = self._build_school_year(self.config)
+        match = re.match(r"\s*(\d{4})/(\d{4})\s*$", target_school_year)
+        if not match:
+            return base_school_year
+
+        target_start_year = int(match.group(1))
+        base_start_year = base_school_year.start_date.year
+        delta = target_start_year - base_start_year
+        if delta == 0:
+            return base_school_year
+
+        return SchoolYear(
+            label=target_school_year.replace("/", "_"),
+            start_date=self._shift_year(base_school_year.start_date, delta),
+            end_date=self._shift_year(base_school_year.end_date, delta),
+            vacation_ranges=[
+                (self._shift_year(start, delta), self._shift_year(end, delta))
+                for start, end in base_school_year.vacation_ranges
+            ],
+            holidays=[self._shift_year(h, delta) for h in base_school_year.holidays],
+        )
+
+    def _shift_year(self, value: date, delta: int) -> date:
+        if delta == 0:
+            return value
+        target_year = value.year + delta
+        try:
+            return value.replace(year=target_year)
+        except ValueError:
+            if value.month == 2 and value.day == 29:
+                return value.replace(year=target_year, day=28)
+            return value
 
     def _next_version_tag(self, output_dir: Path, school_year_label: str) -> str:
         escaped = re.escape(school_year_label)
