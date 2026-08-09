@@ -1,0 +1,24 @@
+{
+  "name": "v003",
+  "header_bg_hex": "#D9E2F3",
+  "vacation_row": {
+    "enabled": true,
+    "keywords": [
+      "FERIEN",
+      "FASNET",
+      "FEIERTAG",
+      "SCHULFREI",
+      "BRUECKENTAG"
+    ],
+    "pdf_bg_hex": "#FDE9D9",
+    "xls_palette_index": 33,
+    "xls_palette_rgb": [253, 233, 217]
+  },
+  "xls": {
+    "import_col_widths": [2300, 4200, 4200, 17000, 5200, 5200]
+  },
+  "pdf": {
+    "single_import_meta_col_widths": [210, 600],
+    "single_import_table_col_widths": [34, 70, 70, 370, 135, 130]
+  }
+}

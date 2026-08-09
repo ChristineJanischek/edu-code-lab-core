@@ -26,6 +26,56 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 
+DEFAULT_LAYOUT_TEMPLATE = {
+    "name": "v003",
+    "header_bg_hex": "#D9E2F3",
+    "vacation_row": {
+        "enabled": True,
+        "keywords": ["FERIEN", "FASNET", "FEIERTAG", "SCHULFREI", "BRUECKENTAG"],
+        "pdf_bg_hex": "#FDE9D9",
+        "xls_palette_index": 33,
+        "xls_palette_rgb": [253, 233, 217],
+    },
+    "xls": {
+        "import_col_widths": [2300, 4200, 4200, 17000, 5200, 5200],
+    },
+    "pdf": {
+        "single_import_meta_col_widths": [210, 600],
+        "single_import_table_col_widths": [34, 70, 70, 370, 135, 130],
+    },
+}
+
+
+def load_layout_template(template_path: Optional[Path]) -> dict:
+    if template_path is None or not template_path.exists():
+        return json.loads(json.dumps(DEFAULT_LAYOUT_TEMPLATE))
+
+    with template_path.open("r", encoding="utf-8") as f:
+        loaded = json.load(f)
+
+    merged = json.loads(json.dumps(DEFAULT_LAYOUT_TEMPLATE))
+    _deep_update(merged, loaded)
+    return merged
+
+
+def _deep_update(target: dict, source: dict) -> None:
+    for key, value in source.items():
+        if isinstance(value, dict) and isinstance(target.get(key), dict):
+            _deep_update(target[key], value)
+        else:
+            target[key] = value
+
+
+def is_vacation_row(row: WeekRow, layout_template: dict) -> bool:
+    vacation_cfg = layout_template.get("vacation_row", {})
+    if not vacation_cfg.get("enabled", True):
+        return False
+
+    keywords = [str(k).upper() for k in vacation_cfg.get("keywords", [])]
+    haystack = f"{row.topic} {row.system} {row.notes}".upper()
+    return any(keyword and keyword in haystack for keyword in keywords)
+
+
 def parse_iso_date(value: str) -> date:
     return datetime.strptime(value, "%Y-%m-%d").date()
 
@@ -376,22 +426,29 @@ class TransferWorkbookImporter:
 
 
 class XlsView:
+    def __init__(self, layout_template: Optional[dict] = None) -> None:
+        self.layout_template = layout_template or load_layout_template(None)
+
     def export_from_import(self, output_file: Path, sheets: Sequence[ImportedSheet]) -> None:
         wb = xlwt.Workbook()
+
+        vacation_cfg = self.layout_template.get("vacation_row", {})
+        palette_index = int(vacation_cfg.get("xls_palette_index", 33))
+        palette_rgb = vacation_cfg.get("xls_palette_rgb", [253, 233, 217])
+        if isinstance(palette_rgb, list) and len(palette_rgb) == 3:
+            wb.set_colour_RGB(palette_index, int(palette_rgb[0]), int(palette_rgb[1]), int(palette_rgb[2]))
 
         header_style = xlwt.easyxf("font: bold on; align: horiz center, vert center; pattern: pattern solid, fore_colour gray25;")
         label_style = xlwt.easyxf("font: bold on;")
         body_style = xlwt.easyxf("align: vert top, wrap on;")
+        vacation_style = xlwt.easyxf(f"align: vert top, wrap on; pattern: pattern solid, fore_colour {palette_index};")
 
         for item in sheets:
             ws = wb.add_sheet(item.sheet_name[:31])
 
-            ws.col(0).width = 2300
-            ws.col(1).width = 4200
-            ws.col(2).width = 4200
-            ws.col(3).width = 17000
-            ws.col(4).width = 5200
-            ws.col(5).width = 5200
+            import_col_widths = self.layout_template.get("xls", {}).get("import_col_widths", [2300, 4200, 4200, 17000, 5200, 5200])
+            for idx, width in enumerate(import_col_widths[:6]):
+                ws.col(idx).width = int(width)
 
             ws.write(0, 0, item.meta.title, label_style)
             ws.write(1, 0, item.meta.subtitle)
@@ -413,13 +470,14 @@ class XlsView:
             for row in item.rows:
                 week_value = "" if row.week_no == 0 else row.week_no
                 start_text, end_text = self._split_span(row.date_span)
+                row_style = vacation_style if is_vacation_row(row, self.layout_template) else body_style
 
-                ws.write(out_row, 0, week_value, body_style)
-                ws.write(out_row, 1, start_text, body_style)
-                ws.write(out_row, 2, end_text, body_style)
-                ws.write(out_row, 3, row.topic, body_style)
-                ws.write(out_row, 4, row.system, body_style)
-                ws.write(out_row, 5, row.notes, body_style)
+                ws.write(out_row, 0, week_value, row_style)
+                ws.write(out_row, 1, start_text, row_style)
+                ws.write(out_row, 2, end_text, row_style)
+                ws.write(out_row, 3, row.topic, row_style)
+                ws.write(out_row, 4, row.system, row_style)
+                ws.write(out_row, 5, row.notes, row_style)
                 ws.row(out_row).height = 620
                 out_row += 1
 
@@ -482,6 +540,9 @@ class XlsView:
 
 
 class PdfView:
+    def __init__(self, layout_template: Optional[dict] = None) -> None:
+        self.layout_template = layout_template or load_layout_template(None)
+
     def export_single_from_import(self, output_file: Path, item: ImportedSheet, print_mode: bool = True) -> None:
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -566,7 +627,8 @@ class PdfView:
             [self._to_paragraph(item.meta.hints_label, meta_label_style), self._to_paragraph(item.meta.hints_text, body)],
         ]
 
-        meta_table = Table(meta_data, colWidths=[210, 600])
+        meta_col_widths = self.layout_template.get("pdf", {}).get("single_import_meta_col_widths", [210, 600])
+        meta_table = Table(meta_data, colWidths=meta_col_widths)
         meta_table.setStyle(
             TableStyle(
                 [
@@ -604,15 +666,17 @@ class PdfView:
                 self._to_paragraph(row.notes, table_cell_style),
             ])
 
+        table_col_widths = self.layout_template.get("pdf", {}).get("single_import_table_col_widths", [34, 70, 70, 370, 135, 130])
         table = Table(
             data,
             repeatRows=1,
-            colWidths=[34, 70, 70, 370, 135, 130],
+            colWidths=table_col_widths,
         )
+        header_bg_hex = self.layout_template.get("header_bg_hex", "#D9E2F3")
         table.setStyle(
             TableStyle(
                 [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#D9E2F3")),
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor(header_bg_hex)),
                     ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
                     ("VALIGN", (0, 0), (-1, -1), "TOP"),
                     ("ALIGN", (0, 0), (2, -1), "CENTER"),
@@ -625,6 +689,12 @@ class PdfView:
                 ]
             )
         )
+
+        vacation_cfg = self.layout_template.get("vacation_row", {})
+        vacation_bg_hex = vacation_cfg.get("pdf_bg_hex", "#FDE9D9")
+        for idx, row in enumerate(item.rows, start=1):
+            if is_vacation_row(row, self.layout_template):
+                table.setStyle(TableStyle([("BACKGROUND", (0, idx), (-1, idx), colors.HexColor(vacation_bg_hex))]))
 
         elements.append(table)
         doc.build(elements)
@@ -782,6 +852,12 @@ class WeeklyPlanApp:
     def __init__(self, config_path: Path) -> None:
         self.config_path = config_path
         self.config = self._load_config(config_path)
+        template_path_cfg = self.config.get("layout_template")
+        template_path = None
+        if template_path_cfg:
+            raw_template_path = Path(template_path_cfg)
+            template_path = raw_template_path if raw_template_path.is_absolute() else (Path(__file__).parent / raw_template_path).resolve()
+        self.layout_template = load_layout_template(template_path)
 
     def run(self) -> Tuple[Path, Path]:
         school_year = self._build_school_year(self.config)
@@ -806,8 +882,8 @@ class WeeklyPlanApp:
         xls_path = output_dir / f"{prefix}_{school_year_label}_{version_tag}_{timestamp}.xls"
         pdf_path = output_dir / f"{prefix}_{school_year_label}_{version_tag}_{timestamp}.pdf"
 
-        XlsView().export(xls_path, school_year_label, plans)
-        PdfView().export(pdf_path, school_year_label, plans)
+        XlsView(self.layout_template).export(xls_path, school_year_label, plans)
+        PdfView(self.layout_template).export(pdf_path, school_year_label, plans)
 
         return xls_path, pdf_path
 
@@ -826,9 +902,9 @@ class WeeklyPlanApp:
         xls_path = output_dir / f"{prefix}_{label_sanitized}_{version_tag}_{timestamp}.xls"
         pdf_path = output_dir / f"{prefix}_{label_sanitized}_{timestamp}.pdf"
 
-        XlsView().export_from_import(xls_path, sheets)
+        XlsView(self.layout_template).export_from_import(xls_path, sheets)
 
-        pdf_view = PdfView()
+        pdf_view = PdfView(self.layout_template)
         generated_pdf_files: List[Path] = []
         print_mode = bool(self.config.get("print_mode", True))
         for item in sheets:
@@ -921,6 +997,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default="auto",
         help="PDF-Druckoptimierung: auto (Standard) oder off",
     )
+    parser.add_argument(
+        "--layout-template",
+        default="config/layout_template_v003.json",
+        help="JSON-Template fuer Layout/Formatierung (Standard: v003)",
+    )
     return parser
 
 
@@ -934,6 +1015,10 @@ def main() -> None:
 
     app = WeeklyPlanApp(cfg_path)
     app.config["print_mode"] = args.print_mode == "auto"
+    app.config["layout_template"] = args.layout_template
+    raw_template_path = Path(args.layout_template)
+    resolved_template = raw_template_path if raw_template_path.is_absolute() else (Path(__file__).parent / raw_template_path).resolve()
+    app.layout_template = load_layout_template(resolved_template)
     if args.transfer_xls:
         transfer_path = Path(args.transfer_xls)
         if not transfer_path.is_absolute():

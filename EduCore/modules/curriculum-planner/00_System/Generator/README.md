@@ -33,14 +33,34 @@ direkt aus der Datei und setzt nur das Schuljahr auf das Zieljahr um.
 cd EduCore/modules/curriculum-planner/00_System/Generator
 python3 wochenplan_generator.py \
   --config config/probe_2026_2027.json \
+  --layout-template config/layout_template_v003.json \
   --transfer-xls ../../09_Import_und_Pruefung/Eingang/Wochenplaene_2025_2026_transfer.xls \
   --target-school-year 2026/2027
 ```
+
+Alternativ als Ein-Klick-Routine:
+
+```bash
+cd EduCore/modules/curriculum-planner/00_System/Generator
+./generate_wochenplaene_v003.sh
+```
+
+Parameter fuer die Routine:
+
+1. Transferdatei (optional)
+2. Zielschuljahr (optional, Format `YYYY/YYYY`)
+3. Druckmodus (optional: `auto` oder `off`)
 
 Optionaler Druckmodus:
 
 - `--print-mode auto` (Standard): versucht fuer jede Klassen-PDF maximal 2 Seiten zu erreichen
 - `--print-mode off`: ohne automatische Verdichtung
+
+Layout-Template:
+
+- `--layout-template config/layout_template_v003.json` (Standard)
+- Die Datei enthaelt Layout, Spaltenbreiten, Farben und Regeln fuer Sonderzeilen.
+- Ferien-/freie Wochen werden in XLS und PDF automatisch mit hellem Pastell-Orange hinterlegt.
 
 ## Eingabedaten (Echtlauf)
 
