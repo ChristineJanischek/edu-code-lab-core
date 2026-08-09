@@ -1,0 +1,107 @@
+{
+  "school_year": {
+    "label": "2026_2027",
+    "start_date": "2026-09-14",
+    "end_date": "2027-07-23"
+  },
+  "vacation_ranges": [
+    {
+      "name": "Herbstferien",
+      "start": "2026-10-26",
+      "end": "2026-10-30"
+    },
+    {
+      "name": "Weihnachtsferien",
+      "start": "2026-12-23",
+      "end": "2027-01-08"
+    },
+    {
+      "name": "Osterferien",
+      "start": "2027-03-29",
+      "end": "2027-04-09"
+    },
+    {
+      "name": "Pfingstferien",
+      "start": "2027-05-18",
+      "end": "2027-05-28"
+    }
+  ],
+  "holidays": [
+    "2026-10-03",
+    "2026-11-01",
+    "2027-05-13",
+    "2027-06-03"
+  ],
+  "assignment_templates": [
+    "Erarbeite die Kernbegriffe zu {topic} und erstelle ein Lernposter.",
+    "Bearbeite eine Fallstudie zu {topic} und dokumentiere den Loesungsweg.",
+    "Loese 6 bis 8 Uebungsaufgaben zu {topic} und markiere offene Fragen.",
+    "Bereite eine Kurzpraesentation (5 Minuten) zu {topic} fuer die Lerngruppe vor."
+  ],
+  "classes": [
+    {
+      "name": "BKWI1",
+      "weekly_hours": 6,
+      "theme_pool": [
+        "Betriebswirtschaftliche Grundlagen",
+        "Kostenartenrechnung",
+        "Kostenstellenrechnung",
+        "Kostentraegerrechnung",
+        "Deckungsbeitragsrechnung",
+        "Einfuehrung in Marketing",
+        "Marktforschung und Zielgruppen",
+        "Rechtsformen von Unternehmen",
+        "Beschaffung und Lagerhaltung",
+        "Finanzierung und Investition",
+        "Personalwirtschaft Grundlagen",
+        "Jahresabschluss verstehen"
+      ]
+    },
+    {
+      "name": "BKWI2",
+      "weekly_hours": 6,
+      "theme_pool": [
+        "Vertiefung Kostenrechnung",
+        "Controlling Kennzahlen",
+        "Break-even-Analyse",
+        "Strategisches Marketing",
+        "Digitales Marketing",
+        "Unternehmensplanspiel",
+        "Projektmanagement Grundlagen",
+        "Risikoanalyse im Unternehmen",
+        "Qualitaetsmanagement",
+        "Steuerliche Grundlagen",
+        "Businessplan Entwicklung",
+        "Pruefungsvorbereitung Wirtschaft"
+      ]
+    },
+    {
+      "name": "BG12",
+      "weekly_hours": 2,
+      "theme_pool": [
+        "Volkswirtschaftliche Grundbegriffe",
+        "Angebot und Nachfrage",
+        "Konjunktur und Wachstum",
+        "Inflation und Geldpolitik",
+        "Arbeitsmarkt",
+        "Europaeische Wirtschaftspolitik",
+        "Globale Maerkte",
+        "Nachhaltiges Wirtschaften"
+      ]
+    },
+    {
+      "name": "BG13",
+      "weekly_hours": 2,
+      "theme_pool": [
+        "Wirtschaftsethik",
+        "Staat und Markt",
+        "Internationale Arbeitsteilung",
+        "Finanzmaerkte",
+        "Krisen und wirtschaftliche Stabilisierung",
+        "Unternehmensverantwortung",
+        "Pruefungsaufgaben VWL/BWL",
+        "Repetitorium Abiturthemen"
+      ]
+    }
+  ]
+}
