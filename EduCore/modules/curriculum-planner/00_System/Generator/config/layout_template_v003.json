@@ -1,5 +1,6 @@
 {
   "name": "v003",
+  "footer_text": "KI generiert - Fehler ggf. melden",
   "header_bg_hex": "#D9E2F3",
   "vacation_row": {
     "enabled": true,

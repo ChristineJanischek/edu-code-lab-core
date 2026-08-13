@@ -28,6 +28,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 DEFAULT_LAYOUT_TEMPLATE = {
     "name": "v003",
+    "footer_text": "KI generiert - Fehler ggf. melden",
     "header_bg_hex": "#D9E2F3",
     "vacation_row": {
         "enabled": True,
@@ -463,6 +464,10 @@ class XlsView:
     def __init__(self, layout_template: Optional[dict] = None) -> None:
         self.layout_template = layout_template or load_layout_template(None)
 
+    def _set_footer(self, worksheet) -> None:
+        footer_text = str(self.layout_template.get("footer_text", "KI generiert - Fehler ggf. melden"))
+        worksheet.set_footer_str(f"&C{footer_text}".encode("ascii"))
+
     def export_from_import(self, output_file: Path, sheets: Sequence[ImportedSheet]) -> None:
         wb = xlwt.Workbook()
 
@@ -483,6 +488,7 @@ class XlsView:
 
         for item in sheets:
             ws = wb.add_sheet(item.sheet_name[:31])
+            self._set_footer(ws)
 
             import_col_widths = self.layout_template.get("xls", {}).get("import_col_widths", [2300, 4200, 4200, 17000, 5200, 5200])
             for idx, width in enumerate(import_col_widths[:6]):
@@ -542,6 +548,7 @@ class XlsView:
 
         for class_name, rows in plans.items():
             ws = wb.add_sheet(class_name[:31])
+            self._set_footer(ws)
 
             ws.col(0).width = 2300
             ws.col(1).width = 5500
@@ -581,6 +588,14 @@ class PdfView:
     def __init__(self, layout_template: Optional[dict] = None) -> None:
         self.layout_template = layout_template or load_layout_template(None)
 
+    def _draw_footer(self, canvas, doc) -> None:
+        footer_text = str(self.layout_template.get("footer_text", "KI generiert - Fehler ggf. melden"))
+        canvas.saveState()
+        canvas.setFont("Helvetica", 7)
+        canvas.setFillColor(colors.grey)
+        canvas.drawCentredString(landscape(A4)[0] / 2, 8, footer_text)
+        canvas.restoreState()
+
     def export_single_from_import(self, output_file: Path, item: ImportedSheet, print_mode: bool = True) -> None:
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -616,7 +631,7 @@ class PdfView:
             leftMargin=16,
             rightMargin=16,
             topMargin=14,
-            bottomMargin=14,
+            bottomMargin=24,
         )
         styles = getSampleStyleSheet()
         heading = styles["Heading2"]
@@ -738,7 +753,7 @@ class PdfView:
                 table.setStyle(TableStyle([("BACKGROUND", (0, idx), (-1, idx), colors.HexColor(vacation_bg_hex))]))
 
         elements.append(table)
-        doc.build(elements)
+        doc.build(elements, onFirstPage=self._draw_footer, onLaterPages=self._draw_footer)
 
     def _to_paragraph(self, text: str, style: ParagraphStyle) -> Paragraph:
         safe_text = escape(text or "")
@@ -764,7 +779,7 @@ class PdfView:
             leftMargin=16,
             rightMargin=16,
             topMargin=16,
-            bottomMargin=16,
+            bottomMargin=26,
         )
         styles = getSampleStyleSheet()
 
@@ -823,7 +838,7 @@ class PdfView:
             elements.append(table)
             elements.append(Spacer(1, 12))
 
-        doc.build(elements)
+        doc.build(elements, onFirstPage=self._draw_footer, onLaterPages=self._draw_footer)
 
     def _split_span(self, date_span: str) -> Tuple[str, str]:
         if " - " not in date_span:
@@ -840,7 +855,7 @@ class PdfView:
             leftMargin=18,
             rightMargin=18,
             topMargin=20,
-            bottomMargin=18,
+            bottomMargin=28,
         )
         styles = getSampleStyleSheet()
 
@@ -886,7 +901,7 @@ class PdfView:
             elements.append(table)
             elements.append(Spacer(1, 18))
 
-        doc.build(elements)
+        doc.build(elements, onFirstPage=self._draw_footer, onLaterPages=self._draw_footer)
 
 
 class WeeklyPlanApp:

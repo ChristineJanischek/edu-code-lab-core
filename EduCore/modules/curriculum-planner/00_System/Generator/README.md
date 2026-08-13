@@ -62,6 +62,8 @@ Layout-Template:
 - Die Datei enthaelt Layout, Spaltenbreiten, Farben und Regeln fuer Sonderzeilen.
 - Ferien-/freie Wochen werden in XLS und PDF automatisch mit hellem Pastell-Orange hinterlegt.
 - Feiertagswochen werden in XLS und PDF automatisch mit hellem Pastell-Gruen hinterlegt.
+- Jede generierte PDF-Seite und jedes gedruckte XLS-Arbeitsblatt enthaelt automatisch
+  die Fusszeile `KI generiert - Fehler ggf. melden`.
 
 ## Wiederverwendbare Jahresroutine
 
