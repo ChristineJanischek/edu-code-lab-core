@@ -80,7 +80,8 @@ Die Kalenderquelle muss `vacation_ranges`, optional `movable_vacation_days` und
 `holidays` enthalten. Feiertage koennen als `{ "date": "YYYY-MM-DD", "name": "..." }`
 angegeben werden. Die Routine erzeugt die Ferienzeilen neu, verteilt die vorhandenen
 Themen in ihrer Reihenfolge auf die verbleibenden Unterrichtswochen und markiert
-Feiertagswochen gruen.
+Feiertagswochen gruen. Anmerkungen werden bei einer Kalenderregeneration komplett
+neu aufgebaut; alte Tageshinweise wie `nur Mo - Do` werden nicht uebernommen.
 
 Automatik in der Spalte Anmerkung:
 

@@ -1000,10 +1000,10 @@ class WeeklyPlanApp:
                 break
             source = topic_rows[topic_index]
             topic_index += 1
-            notes = source.notes
+            notes = ""
             if slot.holiday_names:
                 holiday_note = "Feiertag: " + ", ".join(slot.holiday_names)
-                notes = f"{notes} | {holiday_note}" if notes else holiday_note
+                notes = holiday_note
             row = replace(
                 source,
                 week_no=len([item for item in rebuilt if not self._is_calendar_row(item)]) + 1,
@@ -1015,7 +1015,7 @@ class WeeklyPlanApp:
 
         if topic_index < len(topic_rows):
             raise ValueError(f"Kalender enthaelt zu wenige Unterrichtswochen fuer {len(topic_rows) - topic_index} Themen.")
-        return self._apply_partial_week_notes(rebuilt, school_year)
+        return rebuilt
 
     def _is_calendar_row(self, row: WeekRow) -> bool:
         haystack = f"{row.topic} {row.system} {row.notes}".upper()
