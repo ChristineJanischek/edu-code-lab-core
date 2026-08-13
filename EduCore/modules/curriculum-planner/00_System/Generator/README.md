@@ -61,6 +61,26 @@ Layout-Template:
 - `--layout-template config/layout_template_v003.json` (Standard)
 - Die Datei enthaelt Layout, Spaltenbreiten, Farben und Regeln fuer Sonderzeilen.
 - Ferien-/freie Wochen werden in XLS und PDF automatisch mit hellem Pastell-Orange hinterlegt.
+- Feiertagswochen werden in XLS und PDF automatisch mit hellem Pastell-Gruen hinterlegt.
+
+## Wiederverwendbare Jahresroutine
+
+Die Routine liest die Kalenderquelle aus `config/probe_2026_2027.json` und uebernimmt
+die Themenreihenfolge aus der Transfer-XLS. Fuer ein neues Schuljahr werden nur die
+Kalenderquelle, die Zieljahresangabe und die Transferdatei ausgetauscht:
+
+```bash
+./generate_wochenplaene_v003.sh \
+  ../../09_Import_und_Pruefung/Eingang/Wochenplaene_<VORJAHR>_transfer.xls \
+  <STARTJAHR>/<ENDJAHR> \
+  auto
+```
+
+Die Kalenderquelle muss `vacation_ranges`, optional `movable_vacation_days` und
+`holidays` enthalten. Feiertage koennen als `{ "date": "YYYY-MM-DD", "name": "..." }`
+angegeben werden. Die Routine erzeugt die Ferienzeilen neu, verteilt die vorhandenen
+Themen in ihrer Reihenfolge auf die verbleibenden Unterrichtswochen und markiert
+Feiertagswochen gruen.
 
 Automatik in der Spalte Anmerkung:
 

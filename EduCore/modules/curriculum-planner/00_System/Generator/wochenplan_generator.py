@@ -78,6 +78,13 @@ def is_vacation_row(row: WeekRow, layout_template: dict) -> bool:
     return any(keyword and keyword in haystack for keyword in keywords)
 
 
+def is_holiday_row(row: WeekRow, layout_template: dict) -> bool:
+    holiday_cfg = layout_template.get("holiday_row", {})
+    if not holiday_cfg.get("enabled", True):
+        return False
+    return "FEIERTAG" in f"{row.topic} {row.system} {row.notes}".upper()
+
+
 def parse_iso_date(value: str) -> date:
     return datetime.strptime(value, "%Y-%m-%d").date()
 
@@ -88,7 +95,9 @@ class SchoolYear:
     start_date: date
     end_date: date
     vacation_ranges: Sequence[Tuple[date, date]]
+    vacation_names: Dict[Tuple[date, date], str]
     holidays: Sequence[date]
+    holiday_names: Dict[date, str]
 
 
 @dataclass(frozen=True)
@@ -103,6 +112,8 @@ class WeekSlot:
     index: int
     week_start: date
     week_end: date
+    vacation_name: str = ""
+    holiday_names: Sequence[str] = ()
 
 
 @dataclass(frozen=True)
@@ -144,14 +155,19 @@ class CalendarModel:
         self.school_year = school_year
 
     def generate_teaching_weeks(self) -> List[WeekSlot]:
+        return [slot for slot in self.generate_calendar_weeks() if not slot.vacation_name]
+
+    def generate_calendar_weeks(self) -> List[WeekSlot]:
         weeks: List[WeekSlot] = []
         current = self._to_monday(self.school_year.start_date)
         idx = 1
 
         while current <= self.school_year.end_date:
             week_end = current + timedelta(days=4)
-            if self._is_teaching_week(current):
-                weeks.append(WeekSlot(index=idx, week_start=current, week_end=week_end))
+            vacation_name = self._vacation_name(current, week_end)
+            holiday_names = self._holiday_names(current, week_end)
+            if week_end >= self.school_year.start_date and current <= self.school_year.end_date:
+                weeks.append(WeekSlot(index=idx, week_start=current, week_end=week_end, vacation_name=vacation_name, holiday_names=holiday_names))
                 idx += 1
             current += timedelta(days=7)
 
@@ -161,17 +177,33 @@ class CalendarModel:
         return d - timedelta(days=d.weekday())
 
     def _is_teaching_week(self, monday: date) -> bool:
-        if monday < self.school_year.start_date or monday > self.school_year.end_date:
-            return False
+        return self._has_school_day(monday, monday + timedelta(days=4))
 
-        if monday in self.school_year.holidays:
-            return False
+    def _has_school_day(self, monday: date, friday: date) -> bool:
+        return any(self._is_teaching_day(monday + timedelta(days=i)) for i in range(5))
 
+    def _is_teaching_day(self, current: date) -> bool:
+        if current < self.school_year.start_date or current > self.school_year.end_date:
+            return False
+        if current in self.school_year.holidays:
+            return False
+        return not any(start <= current <= end for start, end in self.school_year.vacation_ranges)
+
+    def _vacation_name(self, monday: date, friday: date) -> str:
+        if self._has_school_day(monday, friday):
+            return ""
+        names = []
         for start, end in self.school_year.vacation_ranges:
-            if start <= monday <= end:
-                return False
+            if start <= friday and end >= monday:
+                names.append(self.school_year.vacation_names.get((start, end), "FERIEN"))
+        return "/".join(dict.fromkeys(names))
 
-        return True
+    def _holiday_names(self, monday: date, friday: date) -> List[str]:
+        return [
+            self.school_year.holiday_names[day]
+            for day in sorted(self.school_year.holiday_names)
+            if monday <= day <= friday and day.weekday() < 5
+        ]
 
 
 class WeeklyPlanController:
@@ -439,11 +471,15 @@ class XlsView:
         palette_rgb = vacation_cfg.get("xls_palette_rgb", [253, 233, 217])
         if isinstance(palette_rgb, list) and len(palette_rgb) == 3:
             wb.set_colour_RGB(palette_index, int(palette_rgb[0]), int(palette_rgb[1]), int(palette_rgb[2]))
+        holiday_palette_index = int(vacation_cfg.get("holiday_xls_palette_index", 34))
+        holiday_palette_rgb = vacation_cfg.get("holiday_xls_palette_rgb", [217, 234, 211])
+        wb.set_colour_RGB(holiday_palette_index, *[int(value) for value in holiday_palette_rgb])
 
         header_style = xlwt.easyxf("font: bold on; align: horiz center, vert center; pattern: pattern solid, fore_colour gray25;")
         label_style = xlwt.easyxf("font: bold on;")
         body_style = xlwt.easyxf("align: vert top, wrap on;")
         vacation_style = xlwt.easyxf(f"align: vert top, wrap on; pattern: pattern solid, fore_colour {palette_index};")
+        holiday_style = xlwt.easyxf(f"align: vert top, wrap on; pattern: pattern solid, fore_colour {holiday_palette_index};")
 
         for item in sheets:
             ws = wb.add_sheet(item.sheet_name[:31])
@@ -472,7 +508,7 @@ class XlsView:
             for row in item.rows:
                 week_value = "" if row.week_no == 0 else row.week_no
                 start_text, end_text = self._split_span(row.date_span)
-                row_style = vacation_style if is_vacation_row(row, self.layout_template) else body_style
+                row_style = holiday_style if is_holiday_row(row, self.layout_template) else vacation_style if is_vacation_row(row, self.layout_template) else body_style
 
                 ws.write(out_row, 0, week_value, row_style)
                 ws.write(out_row, 1, start_text, row_style)
@@ -694,8 +730,11 @@ class PdfView:
 
         vacation_cfg = self.layout_template.get("vacation_row", {})
         vacation_bg_hex = vacation_cfg.get("pdf_bg_hex", "#FDE9D9")
+        holiday_bg_hex = vacation_cfg.get("holiday_pdf_bg_hex", "#D9EAD3")
         for idx, row in enumerate(item.rows, start=1):
-            if is_vacation_row(row, self.layout_template):
+            if is_holiday_row(row, self.layout_template):
+                table.setStyle(TableStyle([("BACKGROUND", (0, idx), (-1, idx), colors.HexColor(holiday_bg_hex))]))
+            elif is_vacation_row(row, self.layout_template):
                 table.setStyle(TableStyle([("BACKGROUND", (0, idx), (-1, idx), colors.HexColor(vacation_bg_hex))]))
 
         elements.append(table)
@@ -892,7 +931,7 @@ class WeeklyPlanApp:
 
     def run_from_transfer(self, transfer_file: Path, target_school_year: str) -> Tuple[Path, Path]:
         importer = TransferWorkbookImporter(transfer_file, target_school_year)
-        sheets = importer.import_sheets()
+        sheets = self._select_target_sheets(importer.import_sheets())
         school_year = self._build_school_year_for_target(target_school_year)
         sheets = [
             ImportedSheet(
@@ -900,7 +939,7 @@ class WeeklyPlanApp:
                 class_name=item.class_name,
                 weekly_hours=item.weekly_hours,
                 meta=item.meta,
-                rows=self._apply_partial_week_notes(item.rows, school_year),
+                rows=self._rebuild_calendar_rows(item.rows, item.weekly_hours, school_year),
             )
             for item in sheets
         ]
@@ -931,6 +970,56 @@ class WeeklyPlanApp:
             pdf_path = generated_pdf_files[0]
 
         return xls_path, pdf_path
+
+    def _select_target_sheets(self, sheets: Sequence[ImportedSheet]) -> List[ImportedSheet]:
+        selected: Dict[str, ImportedSheet] = {}
+        for item in sheets:
+            class_name = item.class_name
+            current = selected.get(class_name)
+            if current is None or ("NEU_AB26_27" in item.sheet_name.upper() and "NEU_AB26_27" not in current.sheet_name.upper()):
+                selected[class_name] = item
+        return list(selected.values())
+
+    def _rebuild_calendar_rows(self, source_rows: Sequence[WeekRow], weekly_hours: int, school_year: SchoolYear) -> List[WeekRow]:
+        calendar = CalendarModel(school_year)
+        slots = calendar.generate_calendar_weeks()
+        topic_rows = [row for row in source_rows if not self._is_calendar_row(row)]
+        rebuilt: List[WeekRow] = []
+        topic_index = 0
+
+        for slot in slots:
+            date_span = f"{slot.week_start.strftime('%d.%m.%Y')} - {slot.week_end.strftime('%d.%m.%Y')}"
+            if slot.vacation_name:
+                notes = ""
+                if slot.holiday_names:
+                    notes = "Feiertag: " + ", ".join(slot.holiday_names)
+                rebuilt.append(WeekRow(0, date_span, weekly_hours, slot.vacation_name.upper(), "", "", notes))
+                continue
+
+            if topic_index >= len(topic_rows):
+                break
+            source = topic_rows[topic_index]
+            topic_index += 1
+            notes = source.notes
+            if slot.holiday_names:
+                holiday_note = "Feiertag: " + ", ".join(slot.holiday_names)
+                notes = f"{notes} | {holiday_note}" if notes else holiday_note
+            row = replace(
+                source,
+                week_no=len([item for item in rebuilt if not self._is_calendar_row(item)]) + 1,
+                date_span=date_span,
+                weekly_hours=weekly_hours,
+                notes=notes,
+            )
+            rebuilt.append(row)
+
+        if topic_index < len(topic_rows):
+            raise ValueError(f"Kalender enthaelt zu wenige Unterrichtswochen fuer {len(topic_rows) - topic_index} Themen.")
+        return self._apply_partial_week_notes(rebuilt, school_year)
+
+    def _is_calendar_row(self, row: WeekRow) -> bool:
+        haystack = f"{row.topic} {row.system} {row.notes}".upper()
+        return any(keyword in haystack for keyword in ("FERIEN", "FASNET", "FASNETS", "SCHULFREI", "FEIERTAG"))
 
     def _apply_partial_week_notes(self, rows: Sequence[WeekRow], school_year: SchoolYear) -> List[WeekRow]:
         # Regel: Tageshinweis nur in Wochen, in denen Ferien Di-Fr starten.
@@ -1052,7 +1141,12 @@ class WeeklyPlanApp:
                 (self._shift_year(start, delta), self._shift_year(end, delta))
                 for start, end in base_school_year.vacation_ranges
             ],
+            vacation_names={
+                (self._shift_year(start, delta), self._shift_year(end, delta)): name
+                for (start, end), name in base_school_year.vacation_names.items()
+            },
             holidays=[self._shift_year(h, delta) for h in base_school_year.holidays],
+            holiday_names={self._shift_year(day, delta): name for day, name in base_school_year.holiday_names.items()},
         )
 
     def _shift_year(self, value: date, delta: int) -> date:
@@ -1083,21 +1177,49 @@ class WeeklyPlanApp:
         if not config_path.exists():
             raise FileNotFoundError(f"Konfiguration nicht gefunden: {config_path}")
         with config_path.open("r", encoding="utf-8") as f:
-            return json.load(f)
+            config = json.load(f)
+
+        calendar_source = config.get("calendar_source")
+        if calendar_source:
+            source_path = Path(calendar_source)
+            if not source_path.is_absolute():
+                source_path = (config_path.parent / source_path).resolve()
+            with source_path.open("r", encoding="utf-8") as f:
+                calendar = json.load(f)
+            config["vacation_ranges"] = list(calendar.get("vacation_ranges", []))
+            for block in calendar.get("movable_vacation_days", []):
+                config["vacation_ranges"].append({**block, "name": "Bewegliche Ferientage"})
+            config["holidays"] = list(calendar.get("holidays", []))
+        return config
 
     def _build_school_year(self, config: dict) -> SchoolYear:
         school_year_cfg = config["school_year"]
-        vacations = [
-            (parse_iso_date(block["start"]), parse_iso_date(block["end"]))
-            for block in config.get("vacation_ranges", [])
-        ]
-        holidays = [parse_iso_date(v) for v in config.get("holidays", [])]
+        vacations = []
+        vacation_names = {}
+        for block in config.get("vacation_ranges", []):
+            start = parse_iso_date(block["start"])
+            end = parse_iso_date(block["end"])
+            vacations.append((start, end))
+            vacation_names[(start, end)] = str(block.get("name", "FERIEN"))
+        holidays = []
+        holiday_names = {}
+        for value in config.get("holidays", []):
+            if isinstance(value, dict):
+                day = parse_iso_date(value["date"])
+                name = str(value.get("name", "Feiertag"))
+            else:
+                day = parse_iso_date(value)
+                name = "Feiertag"
+            holidays.append(day)
+            holiday_names[day] = name
         return SchoolYear(
             label=school_year_cfg["label"],
             start_date=parse_iso_date(school_year_cfg["start_date"]),
             end_date=parse_iso_date(school_year_cfg["end_date"]),
             vacation_ranges=vacations,
+            vacation_names=vacation_names,
             holidays=holidays,
+            holiday_names=holiday_names,
         )
 
     def _build_classes(self, config: dict) -> List[ClassProfile]:

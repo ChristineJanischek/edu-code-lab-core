@@ -11,8 +11,11 @@
       "BRUECKENTAG"
     ],
     "pdf_bg_hex": "#FDE9D9",
+    "holiday_pdf_bg_hex": "#D9EAD3",
     "xls_palette_index": 33,
-    "xls_palette_rgb": [253, 233, 217]
+    "xls_palette_rgb": [253, 233, 217],
+    "holiday_xls_palette_index": 34,
+    "holiday_xls_palette_rgb": [217, 234, 211]
   },
   "xls": {
     "import_col_widths": [2300, 4200, 4200, 17000, 5200, 5200]

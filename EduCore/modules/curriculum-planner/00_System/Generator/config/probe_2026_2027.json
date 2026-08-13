@@ -4,6 +4,7 @@
     "start_date": "2026-09-14",
     "end_date": "2027-07-23"
   },
+  "calendar_source": "../../../03_Schulkalender/Ferien_und_Feiertage/Ferienkalender Wangen 2026-2027.json",
   "vacation_ranges": [
     {
       "name": "Herbstferien",
